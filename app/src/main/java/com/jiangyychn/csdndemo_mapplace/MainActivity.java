@@ -1,7 +1,7 @@
 package com.jiangyychn.csdndemo_mapplace;
 
+import android.Manifest;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -31,7 +31,7 @@ import com.baidu.mapapi.search.poi.PoiSearch;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, OnGetGeoCoderResultListener
+public class MainActivity extends PermissionActivity implements AdapterView.OnItemClickListener, OnGetGeoCoderResultListener
         , BaiduMap.OnMapStatusChangeListener, OnGetPoiSearchResultListener {
 
     private MapView mAtyMainMapView;
@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private PoiSearch mPoiSearch;
 
     private LocationService locationService;
+    private final int LOCATION_REQUEST_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +52,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
         initView();
         initListener();
-        initLocation();
+        requestPermission(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE}, LOCATION_REQUEST_CODE);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
     }
 
     @Override
@@ -83,6 +83,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onDestroy() {
         super.onDestroy();
         mAtyMainMapView.onDestroy();
+    }
+
+    @Override
+    public void permissionSuccess(int requestCode) {
+        super.permissionSuccess(requestCode);
+        if (requestCode == LOCATION_REQUEST_CODE) { //权限通过
+            initLocation();
+        }
+    }
+
+    @Override
+    public void permissionFail(int requestCode) {
+        super.permissionFail(requestCode);
+        //权限不通过
     }
 
     private BDLocationListener mBDLocationListener = new BDLocationListener() {
